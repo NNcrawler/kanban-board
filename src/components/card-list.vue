@@ -20,7 +20,7 @@
       <p> {{taskDetails.description}}</p>
       <div slot="modal-footer">
         <b-button v-on:click="deleteTask" variant="link" type="button" name="button">Delete</b-button>
-        <b-button v-if="beforeAvailable" variant="primary" type="button" name="button">Move to {{beforePanel}}</b-button>
+        <b-button v-on:click="moveBefore" v-if="beforeAvailable" variant="primary" type="button" name="button">Move to {{beforePanel}}</b-button>
         <b-button v-on:click="moveNext" v-if="nextAvailable" variant="primary" type="button" name="button">Move to {{nextPanel}}</b-button>
       </div>
     </b-modal>
@@ -102,18 +102,50 @@ export default {
       }
       this.$refs['detail-task'].show();
     },
+    hideTaskDetails() {
+      this.$root.$emit('bv::hide::modal', 'detail-task');
+    },
     deleteTask() {
       const parent = this.title === 'Todo' ? 'todos' : this.title.toLowerCase();
       this.$db.ref(`/${parent}/${this.taskDetails.key}`).remove();
     },
     moveNext() {
+      this.hideTaskDetails();
       const task = {
         title: this.taskDetails.title,
         description: this.taskDetails.description,
         point: this.taskDetails.point,
         assignedTo: this.taskDetails.assignedTo,
       };
-      this.$db.ref('/todos').push(task);
+      let next = '';
+      if (this.title === 'Backlog') {
+        next = 'todos';
+      } else if (this.title === 'Todo') {
+        next = 'doing';
+      } else if (this.title === 'Doing') {
+        next = 'done';
+      }
+      this.$db.ref(`/${next}`).push(task);
+      this.deleteTask();
+    },
+    moveBefore() {
+      this.hideTaskDetails();
+      const task = {
+        title: this.taskDetails.title,
+        description: this.taskDetails.description,
+        point: this.taskDetails.point,
+        assignedTo: this.taskDetails.assignedTo,
+      };
+      let before = '';
+      if (this.title === 'Done') {
+        before = 'doing';
+      } else if (this.title === 'Doing') {
+        before = 'todos';
+      } else if (this.title === 'Todo') {
+        before = 'backlog';
+      }
+      this.$db.ref(`/${before}`).push(task);
+      this.deleteTask();
     },
   },
 };
