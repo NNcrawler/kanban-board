@@ -2,6 +2,7 @@
   <b-container>
     <b-row><b-col><new-task/></b-col></b-row>
     <b-row>
+      {{todos}}
       <b-col>
         <card :tasks="backlog" title="Backlog"/>
       </b-col>

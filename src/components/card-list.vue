@@ -19,9 +19,9 @@
       </div>
       <p> {{taskDetails.description}}</p>
       <div slot="modal-footer">
-        <b-button variant="link" v-on:click="deleteTask" type="button" name="button">Delete</b-button>
-        <b-button v-if="beforeAvailable" variant="primary" type="button" name="button">Move Before</b-button>
-        <b-button v-if="nextAvailable" variant="primary" type="button" name="button">Move Next</b-button>
+        <b-button v-on:click="deleteTask" variant="link" type="button" name="button">Delete</b-button>
+        <b-button v-if="beforeAvailable" variant="primary" type="button" name="button">Move to {{beforePanel}}</b-button>
+        <b-button v-on:click="moveNext" v-if="nextAvailable" variant="primary" type="button" name="button">Move to {{nextPanel}}</b-button>
       </div>
     </b-modal>
   </div>
@@ -37,6 +37,7 @@ export default {
         point: '',
         status: '',
         key: '',
+        assignedTo: '',
       },
     };
   },
@@ -66,6 +67,26 @@ export default {
       }
       return true;
     },
+    nextPanel() {
+      if (this.title === 'Backlog') {
+        return 'Todo';
+      } else if (this.title === 'Todo') {
+        return 'Doing';
+      } else if (this.title === 'Doing') {
+        return 'Done';
+      }
+      return 'Nowhere';
+    },
+    beforePanel() {
+      if (this.title === 'Done') {
+        return 'Doing';
+      } else if (this.title === 'Doing') {
+        return 'Todo';
+      } else if (this.title === 'Todo') {
+        return 'Backlog';
+      }
+      return 'Nowhere';
+    },
   },
   methods: {
     showModal(task) {
@@ -73,6 +94,7 @@ export default {
       this.taskDetails.description = task.description;
       this.taskDetails.point = task.point;
       this.taskDetails.key = task['.key'];
+      this.taskDetails.assignedTo = task.assignedTo;
       if (this.title === 'Backlog') {
         this.taskDetails.status = 'Backlog';
       } else if (this.title === 'Todo') {
@@ -81,9 +103,17 @@ export default {
       this.$refs['detail-task'].show();
     },
     deleteTask() {
-      if (this.title === 'Backlog') {
-        this.$db.ref(`/backlog/${this.taskDetails.key}`).remove();
-      }
+      const parent = this.title === 'Todo' ? 'todos' : this.title.toLowerCase();
+      this.$db.ref(`/${parent}/${this.taskDetails.key}`).remove();
+    },
+    moveNext() {
+      const task = {
+        title: this.taskDetails.title,
+        description: this.taskDetails.description,
+        point: this.taskDetails.point,
+        assignedTo: this.taskDetails.assignedTo,
+      };
+      this.$db.ref('/todos').push(task);
     },
   },
 };
