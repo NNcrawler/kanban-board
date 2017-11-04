@@ -1,22 +1,22 @@
 <template lang="html">
   <b-container>
     <b-row><b-col><new-task/></b-col></b-row>
+
     <b-row>
-      {{todos}}
-      <b-col>
-        <card :tasks="backlog" title="Backlog"/>
+      <b-col lg="3" md="6" sm="12">
+          <card :tasks="backlog" title="Backlog"/>
       </b-col>
-      <b-col>
+      <b-col lg="3" md="6" sm="12">
         <card :tasks="todos" title="Todo"/>
       </b-col>
-      <b-col>
-        <card title="Doing"/>
+      <b-col lg="3" md="6" sm="12">
+        <card :tasks="doing" title="Doing"/>
       </b-col>
-      <b-col>
-        <card title="Done"/>
+      <b-col lg="3" md="6" sm="12">
+        <card :tasks="done" title="Done"/>
       </b-col>
     </b-row>
-    <!-- <mymodal> -->
+
   </b-container>
 </template>
 
@@ -33,6 +33,8 @@ export default {
     return {
       todos: this.$db.ref('/todos'),
       backlog: this.$db.ref('/backlog'),
+      doing: this.$db.ref('/doing'),
+      done: this.$db.ref('/done'),
     };
   },
 };

@@ -1,11 +1,16 @@
 <template>
   <div id="app">
-    <board-container/>
+    <offline>
+      <board-container slot="online"/>
+      <offline-page slot="offline"/>
+    </offline>
   </div>
 </template>
 
 <script>
+import offline from 'v-offline';
 import boardContainer from './components/board-container';
+import offlinePage from './components/offline-page';
 
 export default {
   name: 'app',
@@ -13,6 +18,10 @@ export default {
   },
   components: {
     'board-container': boardContainer,
+    offline,
+    'offline-page': offlinePage,
+  },
+  methods: {
   },
 };
 </script>

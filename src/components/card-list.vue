@@ -1,6 +1,7 @@
 <template lang="html">
   <div class="">
-    <b-card v-bind:title="title">
+    <img v-if="initFetching" class="loading" src="https://cdn.dribbble.com/users/503653/screenshots/3143656/fluid-loader.gif" alt="">
+    <b-card v-else v-bind:title="title">
       <b-card @click='showModal(task)' v-for="task in tasks" :bg-variant="cardColors"
              :header="task.title"
              class="task mb-2"
@@ -31,6 +32,7 @@
 export default {
   data() {
     return {
+      initFetching: true,
       taskDetails: {
         title: '',
         description: '',
@@ -106,6 +108,7 @@ export default {
       this.$root.$emit('bv::hide::modal', 'detail-task');
     },
     deleteTask() {
+      this.hideTaskDetails();
       const parent = this.title === 'Todo' ? 'todos' : this.title.toLowerCase();
       this.$db.ref(`/${parent}/${this.taskDetails.key}`).remove();
     },
@@ -148,10 +151,19 @@ export default {
       this.deleteTask();
     },
   },
+  mounted() {
+    const parent = this.title === 'Todo' ? 'todos' : this.title.toLowerCase();
+    this.$db.ref(`/${parent}`).once('value', () => {
+      this.initFetching = false;
+    });
+  },
 };
 </script>
 
 <style lang="css">
+.loading {
+  width: 10vh;
+}
 .task-status {
   margin: 0 !important;
   padding: 0 !important;
